@@ -1,27 +1,19 @@
 <script setup lang="ts">
   import { ref } from 'vue';
 
-  let dragItem: any;
+  const items = defineModel<{ id: any; [key: string]: any }[]>('items', {
+    required: true,
+  });
 
-  const items = ref<
-    {
-      id: number;
-      name: string;
-      index: number;
-      placeholder?: boolean;
-    }[]
-  >(
-    new Array(10)
-      .fill(0)
-      .map((_, i) => ({ id: i, name: `Item ${i}`, index: i }))
-  );
+  const innerItems = ref(items.value);
+
+  let dragItem: any;
 
   const onDragStart = (item: any) => {
     dragItem = item;
   };
 
-  const onDrop = (event: DragEvent) => {
-    console.log('Drop event', event);
+  const onDrop = () => {
     dragItem.drop = true;
   };
 
@@ -29,62 +21,38 @@
     console.log('Drag end event', event);
     if (dragItem && dragItem.drop) {
       console.log('item moved');
+      innerItems.value = innerItems.value.map(({ placeholder, ...item }) => ({
+        ...item,
+      }));
+      items.value = innerItems.value;
     } else {
       console.log('item not moved');
+      innerItems.value = items.value;
     }
     dragItem = null;
   };
 
-  const onDragEnter = (item: any) => {
-    console.log(`Drag enter from ${dragItem.index} to ${item.index}`);
-    items.value = items.value.filter((i) => i.placeholder !== true);
-    items.value.splice(item.index, 0, { ...dragItem, placeholder: true });
-    items.value = items.value.filter(
+  const onDragEnter = (index: number) => {
+    innerItems.value = innerItems.value.filter((i) => i.placeholder !== true);
+    innerItems.value.splice(index, 0, { ...dragItem, placeholder: true });
+    innerItems.value = innerItems.value.filter(
       (i) => i.id !== dragItem.id || i.placeholder === true
     );
   };
 </script>
 
 <template>
-  <ul
-    class="sortable-list"
-    @drop.prevent="onDrop"
-    @dragend="onDragEnd"
-    @dragover.prevent
-  >
-    <li
-      v-for="item in items"
+  <div @drop.prevent="onDrop" @dragend="onDragEnd" @dragover.prevent>
+    <div
+      v-for="(item, index) in innerItems"
       :key="item.id"
-      :class="{
-        'sortable-placeholder': item.placeholder,
-      }"
       draggable="true"
       @dragstart="() => !item.placeholder && onDragStart(item)"
-      @dragenter="() => !item.placeholder && onDragEnter(item)"
+      @dragenter="() => !item.placeholder && onDragEnter(index)"
     >
-      {{ item.name }}
-    </li>
-  </ul>
+      <slot name="item" :item="item" :index="index" />
+    </div>
+  </div>
 </template>
 
-<style scoped>
-  .sortable-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    width: 350px;
-  }
-
-  .sortable-list li {
-    padding: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: move;
-  }
-
-  .sortable-placeholder {
-    border-color: red;
-    opacity: 0.5;
-  }
-</style>
+<style scoped></style>
