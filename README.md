@@ -6,3 +6,4 @@ A simple Vue component to create a sortable list.
 - Drag and drop to sort the list.
 - Scroll while dragging.
 - Customize draggable item styles.
+- Customize drag element.

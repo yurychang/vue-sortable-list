@@ -12,9 +12,10 @@
 </script>
 
 <template>
-  <SortableList v-model:items="items">
+  <SortableList v-model:items="items" custom-handle>
     <template #item="{ item }">
       <div class="item">
+        <div class="handle" draggable="true">:::</div>
         <div class="item-name">{{ item.name }}</div>
       </div>
     </template>
@@ -33,5 +34,11 @@
 
   .item-name {
     font-weight: bold;
+  }
+
+  .handle {
+    background: #000;
+    user-select: none;
+    cursor: pointer;
   }
 </style>
