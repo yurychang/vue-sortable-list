@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { onMounted, onUpdated, ref } from 'vue';
+  import { ref } from 'vue';
 
   const props = defineProps<{
     customHandle?: boolean;
@@ -19,7 +19,7 @@
       let el: HTMLElement | null = e.target as HTMLElement;
 
       while (el && el !== e.currentTarget) {
-        if ((el as HTMLElement).classList.contains('handle')) {
+        if ((el as HTMLElement).classList.contains('sortable-list-handle')) {
           shouldAssignItem = true;
         }
         el = el.parentElement;
@@ -37,7 +37,7 @@
     dragItem.drop = true;
   };
 
-  const onDragEnd = (event: DragEvent) => {
+  const onDragEnd = () => {
     if (!dragItem) return;
     if (dragItem && dragItem.drop) {
       console.log('item moved');
@@ -77,10 +77,15 @@
       :draggable="!props.customHandle"
       @dragstart="(e) => !item.placeholder && onDragStart(e, item)"
       @dragenter="() => !item.placeholder && onDragEnter(index)"
+      :class="{ placeholder: item.placeholder }"
     >
       <slot name="item" :item="item" :index="index" />
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+  .placeholder {
+    opacity: 0.5;
+  }
+</style>

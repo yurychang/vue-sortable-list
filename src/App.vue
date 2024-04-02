@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import SortableList from './components/SortableList.vue';
+  import { vHandle } from './components/handle';
 
   const items = ref<
     {
@@ -15,7 +16,7 @@
   <SortableList v-model:items="items" custom-handle>
     <template #item="{ item }">
       <div class="item">
-        <div class="handle" draggable="true">:::</div>
+        <div v-handle>:::</div>
         <div class="item-name">{{ item.name }}</div>
       </div>
     </template>
